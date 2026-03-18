@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<meta name="theme-color" content="#060e1a">
+<title>SOL/USDT Live</title>
+<style>
+:root{--bg:#060e1a;--card:#0b1623;--border:#192840;--accent:#00e5ff;--green:#00e676;--red:#ff1744;--yellow:#ffd600;--purple:#9945ff;--muted:#3a5270;--text:#cdd8e8;}
+*{margin:0;padding:0;box-sizing:border-box;}
+body{background:var(--bg);color:var(--text);font-family:monospace;min-height:100vh;padding:10px;font-size:12px;}
+.card{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:10px 12px;margin-bottom:8px;}
+.grid3{display:grid;grid-template-columns:repeat(3,1fr);gap:7px;margin-bottom:8px;}
+.hdr{display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px;}
+.sol-ico{width:34px;height:34px;border-radius:50%;background:linear-gradient(135deg,#9945ff,#14f195);display:flex;align-items:center;justify-content:center;font-weight:800;font-size:10px;flex-shrink:0;}
+.price-big{font-size:24px;font-weight:800;transition:color .3s;}
+.live-dot{width:7px;height:7px;border-radius:50%;background:var(--green);box-shadow:0 0 8px var(--green);animation:blink 1.4s infinite;flex-shrink:0;}
+.btn{padding:5px 11px;background:rgba(0,229,255,.08);border:1px solid rgba(0,229,255,.3);border-radius:7px;color:var(--accent);font-family:monospace;font-size:9px;cursor:pointer;}
+.lbl{font-size:8px;color:var(--muted);text-transform:uppercase;letter-spacing:.9px;margin-bottom:3px;}
+.sig-ind{width:54px;height:54px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-weight:800;font-size:9px;flex-shrink:0;}
+.lvls{display:grid;grid-template-columns:1fr 1fr 1fr;gap:7px;}
+.lv{background:#081018;border-radius:8px;padding:9px;}
+.rr-bar{height:3px;background:var(--border);border-radius:3px;overflow:hidden;margin-top:8px;}
+.rr-fill{height:100%;background:linear-gradient(90deg,#ff1744,#ffd600,#00e676);border-radius:3px;transition:width 1s;}
+.gauges{display:grid;grid-template-columns:repeat(4,1fr);gap:6px;margin-bottom:8px;}
+.gc{background:var(--card);border:1px solid var(--border);border-radius:10px;padding:8px 4px;text-align:center;}
+.gw{position:relative;width:54px;height:54px;margin:0 auto;}
+.gv{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-weight:800;font-size:10px;}
+.vdots{display:flex;gap:3px;flex-wrap:wrap;margin-top:8px;}
+.vd{width:10px;height:10px;border-radius:50%;}
+@keyframes blink{0%,100%{opacity:1}50%{opacity:.3}}
+</style>
+</head>
+<body>
+<div style="max-width:480px;margin:0 auto;">
+<div class="card hdr" style="margin-bottom:10px;">
+  <div style="display:flex;align-items:center;gap:8px;">
+    <div class="sol-ico">SOL</div>
+    <div><div style="font-weight:800;font-size:17px;color:#fff;">SOL / USDT</div><div style="font-size:8px;color:var(--muted);">Binance · 15m · <span style="color:#14f195;">Live</span></div></div>
+  </div>
+  <div style="text-align:center;"><div class="price-big" id="priceEl">—</div><div style="font-size:9px;" id="chgEl">—</div></div>
+  <div style="display:flex;align-items:center;gap:7px;"><div class="live-dot" id="dotEl"></div><span style="font-size:8px;color:var(--muted);" id="tsEl">—</span><button class="btn" onclick="loadAll()">⟳</button></div>
+</div>
+<div class="grid3">
+  <div class="card"><div class="lbl">Vol 24h</div><div id="sv1" style="font-size:13px;font-weight:600;">—</div><div style="font-size:8px;color:var(--muted);">SOL</div></div>
+  <div class="card"><div class="lbl">Max 24h</div><div id="sv2" style="font-size:13px;font-weight:600;color:var(--green);">—</div></div>
+  <div class="card"><div class="lbl">Min 24h</div><div id="sv3" style="font-size:13px;font-weight:600;color:var(--red);">—</div></div>
+  <div class="card"><div class="lbl">RSI (14)</div><div id="sv4" style="font-size:13px;font-weight:600;">—</div><div id="ss4" style="font-size:8px;color:var(--muted);">—</div></div>
+  <div class="card"><div class="lbl">MACD</div><div id="sv5" style="font-size:13px;font-weight:600;">—</div><div id="ss5" style="font-size:8px;color:var(--muted);">—</div></div>
+  <div class="card"><div class="lbl">EMA Trend</div><div id="sv6" style="font-size:13px;font-weight:600;">—</div><div id="ss6" style="font-size:8px;color:var(--muted);">—</div></div>
+</div>
+<div class="card" style="margin-bottom:8px;">
+  <div style="display:flex;align-items:center;gap:10px;margin-bottom:10px;">
+    <div class="sig-ind" id="sigInd" style="border:2px solid var(--yellow);color:var(--yellow);background:rgba(255,214,0,.08);">?</div>
+    <div style="flex:1;"><div style="font-weight:700;font-size:13px;color:#fff;" id="sigTitle">Ładowanie...</div><div style="font-size:9px;color:var(--muted);margin-top:2px;" id="sigDesc">Pobieranie danych z Binance</div></div>
+    <div id="sigBadge"></div>
+  </div>
+  <div class="lvls">
+    <div class="lv"><div class="lbl">⬤ Entry</div><div style="font-size:15px;font-weight:700;color:var(--accent);" id="lEntry">—</div><div id="lEntN" style="font-size:8px;color:var(--muted);margin-top:2px;">—</div></div>
+    <div class="lv"><div class="lbl">⬤ Stop Loss</div><div style="font-size:15px;font-weight:700;color:var(--red);" id="lSL">—</div><div id="lSLN" style="font-size:8px;color:var(--muted);margin-top:2px;">—</div></div>
+    <div class="lv"><div class="lbl">⬤ Take Profit</div><div style="font-size:15px;font-weight:700;color:var(--green);" id="lTP">—</div><div id="lTPN" style="font-size:8px;color:var(--muted);margin-top:2px;">—</div></div>
+  </div>
+  <div class="rr-bar"><div class="rr-fill" id="rrF" style="width:50%;"></div></div>
+  <div style="font-size:9px;margin-top:4px;" id="rrL">R/R: —</div>
+</div>
+<div class="card" style="margin-bottom:8px;">
+  <div style="font-size:8px;color:var(--accent);text-transform:uppercase;letter-spacing:.8px;margin-bottom:7px;">◉ SOL/USDT 15m · Cena · EMA · BB</div>
+  <canvas id="cMain" height="200" style="width:100%;display:block;background:#050d18;border-radius:8px;"></canvas>
+  <div style="display:flex;justify-content:space-between;font-size:8px;color:var(--muted);margin-top:4px;"><span id="chartMin">—</span><span id="chartCur" style="color:var(--accent);font-weight:600;">—</span><span id="chartMax">—</span></div>
+</div>
+<div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:8px;">
+  <div class="card"><div style="display:flex;justify-content:space-between;margin-bottom:5px;"><span style="font-size:8px;color:#7c3aed;text-transform:uppercase;">◉ RSI (14)</span><span style="font-size:11px;font-weight:700;" id="rsiDisp">—</span></div><canvas id="cRSI" height="90" style="width:100%;display:block;background:#050d18;border-radius:6px;"></canvas></div>
+  <div class="card"><div style="display:flex;justify-content:space-between;margin-bottom:5px;"><span style="font-size:8px;color:#ff6d00;text-transform:uppercase;">◉ MACD</span><span style="font-size:10px;font-weight:700;" id="macdDisp">—</span></div><canvas id="cMACD" height="90" style="width:100%;display:block;background:#050d18;border-radius:6px;"></canvas></div>
+</div>
+<div class="card" style="margin-bottom:8px;">
+  <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:9px;"><span style="font-size:8px;color:#14f195;text-transform:uppercase;">◉ VMC · VOLUME MARKET CIPHER</span><span id="vmcBadge"></span></div>
+  <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;margin-bottom:8px;">
+    <div><div class="lbl">MFI</div><div style="font-size:15px;font-weight:700;" id="mfiV">—</div><div style="font-size:8px;color:var(--muted);margin-top:2px;" id="mfiL">—</div></div>
+    <div><div class="lbl">Wave Trend</div><div style="font-size:15px;font-weight:700;" id="wtV">—</div><div style="font-size:8px;color:var(--muted);margin-top:2px;" id="wtL">—</div></div>
+    <div><div class="lbl">VMC Cross</div><div style="font-size:13px;font-weight:700;" id="vmcCV">—</div><div style="font-size:8px;color:var(--muted);margin-top:2px;" id="vmcCL">—</div></div>
+  </div>
+  <div class="vdots" id="vDots"></div>
+</div>
+<div class="gauges">
+  <div class="gc"><div class="lbl" style="text-align:center;">RSI</div><div class="gw"><canvas id="g1" width="54" height="54"></canvas><div class="gv" id="g1v" style="color:#7c3aed;">—</div></div><div style="font-size:8px;margin-top:4px;font-weight:600;" id="g1l">—</div></div>
+  <div class="gc"><div class="lbl" style="text-align:center;">MACD</div><div class="gw"><canvas id="g2" width="54" height="54"></canvas><div class="gv" id="g2v">—</div></div><div style="font-size:8px;margin-top:4px;font-weight:600;" id="g2l">—</div></div>
+  <div class="gc"><div class="lbl" style="text-align:center;">BB Poz.</div><div class="gw"><canvas id="g3" width="54" height="54"></canvas><div class="gv" id="g3v">—</div></div><div style="font-size:8px;margin-top:4px;font-weight:600;" id="g3l">—</div></div>
+  <div class="gc"><div class="lbl" style="text-align:center;">VMC</div><div class="gw"><canvas id="g4" width="54" height="54"></canvas><div class="gv" id="g4v">—</div></div><div style="font-size:8px;margin-top:4px;font-weight:600;" id="g4l">—</div></div>
+</div>
+<div style="text-align:center;font-size:8px;color:#192840;padding-bottom:20px;">⚠ Tylko edukacyjnie · Auto-refresh: 60s</div>
+</div>
+<script>
+const $=id=>document.getElementById(id);
+let mC,rC,maC,tmr;
+const ema=(d,p)=>{const k=2/(p+1);let e=[d[0]];for(let i=1;i<d.length;i++)e.push(d[i]*k+e[i-1]*(1-k));return e;};
+function cRSI(c,p=14){let g=[],l=[];for(let i=1;i<c.length;i++){const d=c[i]-c[i-1];g.push(Math.max(d,0));l.push(Math.max(-d,0));}let ag=g.slice(0,p).reduce((a,b)=>a+b,0)/p,al=l.slice(0,p).reduce((a,b)=>a+b,0)/p,r=[];for(let i=p;i<g.length;i++){ag=(ag*(p-1)+g[i])/p;al=(al*(p-1)+l[i])/p;r.push(al===0?100:100-100/(1+ag/al));}return r;}
+function cMACD(c,f=12,s=26,sg=9){const ef=ema(c,f),es=ema(c,s),ml=ef.map((v,i)=>v-es[i]),off=s-1,sl=ema(ml.slice(off),sg);return{ml:ml.slice(off),sl,hist:ml.slice(off).map((v,i)=>v-(sl[i]||0))};}
+function cBB(c,p=20,m=2){let u=[],l=[],mid=[];for(let i=p-1;i<c.length;i++){const s=c.slice(i-p+1,i+1),avg=s.reduce((a,b)=>a+b,0)/p,std=Math.sqrt(s.map(v=>(v-avg)**2).reduce((a,b)=>a+b,0)/p);mid.push(avg);u.push(avg+m*std);l.push(avg-m*std);}return{u,l,mid};}
+function cMFI(h,l,c,v,p=14){let r=[];for(let i=p;i<c.length;i++){let pf=0,nf=0;for(let j=i-p+1;j<=i;j++){const tp=(h[j]+l[j]+c[j])/3,ptp=(h[j-1]+l[j-1]+c[j-1])/3,mv=tp*v[j];if(tp>ptp)pf+=mv;else nf+=mv;}r.push(nf===0?100:100-100/(1+pf/nf));}return r;}
+function cWT(c,n1=10,n2=21){const ea=ema(c,n1),d=c.map((v,i)=>Math.abs(v-ea[i])),de=ema(d,n1),ci=c.map((v,i)=>de[i]>0?(v-ea[i])/(0.015*de[i]):0),w1=ema(ci,n2),w2=w1.map((_,i,a)=>{const s=a.slice(Math.max(0,i-3),i+1);return s.reduce((x,y)=>x+y,0)/s.length;});return{w1,w2};}
+function drawG(id,val,mn,mx,col){const cv=$(id);if(!cv)return;const sz=54,dpr=window.devicePixelRatio||1;cv.width=sz*dpr;cv.height=sz*dpr;const ctx=cv.getContext('2d');ctx.scale(dpr,dpr);const cx=sz/2,cy=sz/2,r=sz/2-5,sa=Math.PI*.75,ea=Math.PI*2.25,pct=Math.max(0,Math.min(1,(val-mn)/(mx-mn)));ctx.clearRect(0,0,sz,sz);ctx.beginPath();ctx.arc(cx,cy,r,sa,ea);ctx.strokeStyle='#192840';ctx.lineWidth=5;ctx.lineCap='round';ctx.stroke();ctx.beginPath();ctx.arc(cx,cy,r,sa,sa+pct*(ea-sa));ctx.strokeStyle=col;ctx.lineWidth=5;ctx.lineCap='round';ctx.shadowColor=col;ctx.shadowBlur=8;ctx.stroke();}
+function drawLine(cv,data,color,mn,mx,refs=[]){if(!cv||!data.length)return;const W=cv.offsetWidth*window.devicePixelRatio||300,H=cv.height*window.devicePixelRatio||90;cv.width=W;const ctx=cv.getContext('2d');ctx.scale(window.devicePixelRatio,window.devicePixelRatio);const w=cv.offsetWidth,h=cv.height;const lo=mn??Math.min(...data.filter(v=>v!=null)),hi=mx??Math.max(...data.filter(v=>v!=null)),range=hi-lo||1;const px=(i,len)=>(i/(len-1||1))*w,py=v=>h-((v-lo)/range)*(h-6)-3;refs.forEach(r=>{ctx.beginPath();ctx.moveTo(0,py(r.v));ctx.lineTo(w,py(r.v));ctx.strokeStyle=r.c;ctx.lineWidth=1;ctx.setLineDash([4,4]);ctx.stroke();ctx.setLineDash([]);});const pts=data.map((v,i)=>v==null?null:[px(i,data.length),py(v)]).filter(Boolean);if(pts.length<2)return;ctx.beginPath();pts.forEach((p,i)=>i===0?ctx.moveTo(p[0],p[1]):ctx.lineTo(p[0],p[1]));ctx.strokeStyle=color;ctx.lineWidth=1.8;ctx.stroke();}
+function drawMACD(cv,hist,ml,sl){if(!cv||!hist.length)return;const W=cv.offsetWidth*window.devicePixelRatio||300,H=cv.height*window.devicePixelRatio||90;cv.width=W;const ctx=cv.getContext('2d');ctx.scale(window.devicePixelRatio,window.devicePixelRatio);const w=cv.offsetWidth,h=cv.height;const all=[...hist,...ml,...(sl||[])],lo=Math.min(...all),hi=Math.max(...all),range=hi-lo||1;const py=v=>h-((v-lo)/range)*(h-6)-3,px=(i,len)=>(i/(len-1||1))*w,bw=Math.max(2,w/hist.length-1);ctx.beginPath();ctx.moveTo(0,py(0));ctx.lineTo(w,py(0));ctx.strokeStyle='rgba(255,255,255,0.07)';ctx.lineWidth=1;ctx.stroke();hist.forEach((v,i)=>{const x=px(i,hist.length),yZ=py(0),yV=py(v),bh=Math.abs(yV-yZ);ctx.fillStyle=v>=0?'rgba(0,230,118,.7)':'rgba(255,23,68,.7)';ctx.fillRect(x-bw/2,Math.min(yV,yZ),bw,Math.max(1,bh));});[[ml,'#ff6d00',0],[sl,'#ffd600',ml.length-sl.length]].forEach(([d,c,off])=>{if(!d)return;ctx.beginPath();d.forEach((v,i)=>i===0?ctx.moveTo(px(i+off,hist.length),py(v)):ctx.lineTo(px(i+off,hist.length),py(v)));ctx.strokeStyle=c;ctx.lineWidth=1.5;ctx.stroke();});}
+function drawMain(cv,C,E20,E50,BB){if(!cv)return;const W=cv.offsetWidth*window.devicePixelRatio||300,H=200*window.devicePixelRatio;cv.width=W;cv.height=H;const ctx=cv.getContext('2d');ctx.scale(window.devicePixelRatio,window.devicePixelRatio);const w=cv.offsetWidth,h=200;const off=C.length-BB.u.length;const allV=[...C,...BB.u,...BB.l];const lo=Math.min(...allV)-0.5,hi=Math.max(...allV)+0.5,range=hi-lo;const px=i=>(i/(C.length-1))*w,py=v=>h-((v-lo)/range)*(h-8)-4;ctx.fillStyle='rgba(0,229,255,0.05)';const bup=BB.u.map((v,i)=>[px(i+off),py(v)]),blo=BB.l.map((v,i)=>[px(i+off),py(v)]);ctx.beginPath();bup.forEach((p,i)=>i===0?ctx.moveTo(p[0],p[1]):ctx.lineTo(p[0],p[1]));[...blo].reverse().forEach(p=>ctx.lineTo(p[0],p[1]));ctx.closePath();ctx.fill();[[BB.u,'rgba(0,229,255,0.3)',off],[BB.l,'rgba(0,229,255,0.3)',off],[E20,'#ffd600',0],[E50,'#9945ff',0]].forEach(([arr,col,o])=>{ctx.beginPath();arr.forEach((v,i)=>i===0?ctx.moveTo(px(i+o),py(v)):ctx.lineTo(px(i+o),py(v)));ctx.strokeStyle=col;ctx.lineWidth=i=>col==='#ffd600'||col==='#9945ff'?1.4:1;ctx.lineWidth=1.5;ctx.stroke();});ctx.beginPath();C.forEach((v,i)=>i===0?ctx.moveTo(px(i),py(v)):ctx.lineTo(px(i),py(v)));ctx.strokeStyle='#00e5ff';ctx.lineWidth=2;ctx.stroke();ctx.beginPath();ctx.moveTo(0,py(C[C.length-1]));ctx.lineTo(w,py(C[C.length-1]));ctx.strokeStyle='rgba(0,229,255,0.4)';ctx.lineWidth=0.8;ctx.setLineDash([3,3]);ctx.stroke();ctx.setLineDash([]);}
+function render(klines,ticker){
+const F=(n,d=2)=>parseFloat(n).toFixed(d);
+const FK=n=>{n=parseFloat(n);return n>=1e6?(n/1e6).toFixed(1)+'M':n>=1e3?(n/1e3).toFixed(1)+'K':n.toFixed(0);};
+const H=klines.map(k=>+k[2]),L=klines.map(k=>+k[3]),C=klines.map(k=>+k[4]),V=klines.map(k=>+k[5]);
+const E20=ema(C,20),E50=ema(C,50),BB=cBB(C,20,2),RSI=cRSI(C,14),MACD=cMACD(C,12,26,9),MFI=cMFI(H,L,C,V,14),WT=cWT(C);
+const n=C.length-1,lr=RSI[RSI.length-1],lh=MACD.hist[MACD.hist.length-1],lml=MACD.ml[MACD.ml.length-1],lsl=MACD.sl[MACD.sl.length-1],lbbu=BB.u[BB.u.length-1],lbbl=BB.l[BB.l.length-1],le20=E20[n],le50=E50[n],lmfi=MFI[MFI.length-1],lw1=WT.w1[WT.w1.length-1],lw2=WT.w2[WT.w2.length-1];
+const pc=parseFloat(ticker.priceChangePercent);
+$('priceEl').textContent='$'+F(ticker.lastPrice,2);$('priceEl').style.color=pc>=0?'var(--green)':'var(--red)';
+$('chgEl').textContent=(pc>=0?'+':'')+F(pc,2)+'% 24h';$('chgEl').style.color=pc>=0?'var(--green)':'var(--red)';
+$('sv1').textContent=FK(ticker.volume);$('sv2').textContent='$'+F(ticker.highPrice,2);$('sv3').textContent='$'+F(ticker.lowPrice,2);
+$('sv4').textContent=F(lr,1);$('sv4').style.color=lr>70?'var(--red)':lr<30?'var(--green)':lr>55?'var(--green)':'var(--yellow)';
+$('ss4').textContent=lr>70?'Wykupienie':lr<30?'Wyprzedanie':lr>55?'Bullish':'Bearish';
+$('sv5').textContent=lh>0?'▲ Bull':'▼ Bear';$('sv5').style.color=lh>0?'var(--green)':'var(--red)';$('ss5').textContent='Hist: '+F(lh,4);
+$('sv6').textContent=le20>le50?'▲ Bull':'▼ Bear';$('sv6').style.color=le20>le50?'var(--green)':'var(--red)';$('ss6').textContent='EMA20'+(le20>le50?'>':'<')+'EMA50';
+let sc=0;
+if(lr>55)sc+=1;if(lr<45)sc-=1;if(lr<35)sc-=1;if(lr>65)sc-=.5;
+if(lh>0&&lml>lsl)sc+=1.5;else if(lh<0&&lml<lsl)sc-=1.5;
+if(le20>le50)sc+=1;else sc-=1;
+if(C[n]<lbbl)sc-=.5;if(C[n]>lbbu)sc+=.5;
+if(lw1>lw2&&lw1<0)sc+=1;if(lw1<lw2&&lw1>0)sc-=1;
+if(lmfi>60)sc+=.5;if(lmfi<40)sc-=.5;
+const atr=(lbbu-lbbl)*.15,entry=C[n];
+let sig,sl_,tp_;
+if(sc>=2.5){sig='LONG';sl_=Math.max(lbbl,entry-atr*2);tp_=entry+(entry-sl_)*2.5;}
+else if(sc<=-2.5){sig='SHORT';sl_=Math.min(lbbu,entry+atr*2);tp_=entry-(sl_-entry)*2.5;}
+else{sig='WAIT';sl_=entry-atr*1.5;tp_=entry+atr*3;}
+const risk=Math.abs(entry-sl_)/entry*100,reward=Math.abs(tp_-entry)/entry*100,rr=reward/risk;
+const sigC=sig==='LONG'?'#00e676':sig==='SHORT'?'#ff1744':'#ffd600';
+const sigBg=sig==='LONG'?'rgba(0,230,118,.12)':sig==='SHORT'?'rgba(255,23,68,.12)':'rgba(255,214,0,.08)';
+$('sigInd').textContent=sig;$('sigInd').style.cssText=`width:54px;height:54px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-weight:800;font-size:9px;flex-shrink:0;color:${sigC};background:${sigBg};border:2px solid ${sigC};box-shadow:0 0 16px ${sigC}44;`;
+$('sigTitle').textContent=sig==='LONG'?'🟢 Sygnał LONG — Kupno':sig==='SHORT'?'🔴 Sygnał SHORT — Sprzedaż':'🟡 WAIT — Brak sygnału';
+$('sigDesc').textContent=`Score: ${F(sc,1)} · RSI ${F(lr,0)} · MACD ${lh>0?'↑':'↓'} · EMA ${le20>le50?'Bull':'Bear'}`;
+$('lEntry').textContent='$'+F(entry,2);$('lEntN').textContent=sig==='LONG'?'Wejście rynkowe':sig==='SHORT'?'Short rynkowy':'Potencjalny';
+$('lSL').textContent='$'+F(sl_,2);$('lSLN').textContent=`-${F(risk,1)}% od entry`;
+$('lTP').textContent='$'+F(tp_,2);$('lTPN').textContent=`+${F(reward,1)}% od entry`;
+$('rrF').style.width=Math.min(100,rr/3*100)+'%';
+$('rrL').textContent=`R/R: 1:${F(rr,1)} · ${rr>=2?'✅ Dobry':rr>=1.5?'⚠ Akceptowalny':'❌ Słaby'}`;
+$('rrL').style.color=rr>=2?'var(--green)':rr>=1.5?'var(--yellow)':'var(--red)';
+$('sigBadge').innerHTML=`<span style="font-size:9px;padding:2px 8px;border-radius:14px;font-weight:600;background:${sigBg};border:1px solid ${sigC};color:${sigC};">${sig==='LONG'?'▲ LONG':sig==='SHORT'?'▼ SHORT':'◆ WAIT'}</span>`;
+$('chartMin').textContent='$'+F(Math.min(...L),2);$('chartCur').textContent='$'+F(C[n],2)+' ◀';$('chartMax').textContent='$'+F(Math.max(...H),2);
+$('rsiDisp').textContent=F(lr,1);$('rsiDisp').style.color=lr>70?'var(--red)':lr<30?'var(--green)':'#7c3aed';
+$('macdDisp').textContent=(lh>0?'▲':'▼')+' '+F(lh,4);$('macdDisp').style.color=lh>0?'var(--green)':'var(--red)';
+const wcu=(WT.w1[WT.w1.length-2]<WT.w2[WT.w2.length-2])&&lw1>lw2,wcd=(WT.w1[WT.w1.length-2]>WT.w2[WT.w2.length-2])&&lw1<lw2;
+$('mfiV').textContent=F(lmfi,1);$('mfiV').style.color=lmfi>60?'var(--green)':lmfi<40?'var(--red)':'var(--yellow)';$('mfiL').textContent=lmfi>60?'Napływ':'Odpływ/Neutral';
+$('wtV').textContent=F(lw1,1);$('wtV').style.color=lw1>lw2?'var(--green)':'var(--red)';$('wtL').textContent=lw1>0?'OB zone':'OS zone';
+$('vmcCV').textContent=wcu?'▲ BULL UP':wcd?'▼ BEAR DOWN':'— Brak';$('vmcCV').style.color=wcu?'var(--green)':wcd?'var(--red)':'var(--yellow)';$('vmcCL').textContent=wcu?'Bullish VMC':wcd?'Bearish VMC':'Oczekiwanie';
+$('vmcBadge').innerHTML=wcu?'<span style="font-size:9px;color:#00e676;border:1px solid rgba(0,230,118,.3);padding:2px 8px;border-radius:14px;background:rgba(0,230,118,.1);">▲ BULL</span>':wcd?'<span style="font-size:9px;color:#ff1744;border:1px solid rgba(255,23,68,.3);padding:2px 8px;border-radius:14px;background:rgba(255,23,68,.1);">▼ BEAR</span>':'<span style="font-size:9px;color:#ffd600;border:1px solid rgba(2
